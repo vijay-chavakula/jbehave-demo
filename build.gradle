@@ -1,0 +1,65 @@
+group 'com.example.jbehave'
+
+buildscript {
+    ext {
+        springBootVersion = '1.5.2.RELEASE'
+    }
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+apply plugin: 'java'
+apply plugin: 'war'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+
+version '1.0-SNAPSHOT'
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile('org.springframework.boot:spring-boot-starter-web')
+    compile('com.squareup.okhttp3:okhttp:3.6.0')
+    //compile("org.springframework.boot:spring-boot-starter-tomcat")
+    compile('net.thucydides:thucydides-jbehave-plugin:0.9.98')
+    //providedRuntime("org.springframework.boot:spring-boot-starter-tomcat")
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+sourceSets.test.resources.srcDir 'src/test/java'
+
+test {
+    systemProperty "metaFilters", System.getProperty("metaFilters", "")
+    doFirst {
+        copy {
+            from(zipTree(jarPath("jbehave-core"))) {
+                include "style/*"
+            }
+            into("build/jbehave/view")
+
+        }
+//        copy {
+//            from(zipTree(jarPath("jbehave-site-resources"))) {
+//                include "js/**/*"
+//                include "style/**/*"
+//                include "images/*"
+//            }
+//            into("build/jbehave/view")
+//        }
+    }
+}
+
+def jarPath(String jarName) {
+    configurations.testCompile.find({ it.name.startsWith(jarName) }).absolutePath
+}
+
+//task wrapper(type: Wrapper) {
+//    gradleVersion = '2.2.1'
+//}
